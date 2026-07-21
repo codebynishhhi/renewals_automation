@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     langfuse_secret_key:str = ""
     langfuse_host:str = "https://cloud.langfuse.com"
 
+    # database 
+    db_host :str = "localhost"
+    db_port : int = 5432
+    db_name : str = "npi_db"
+    db_username :str = "npi_user"
+    db_password :str = "npi_password"
+
     # app
     log_level:str = "INFO"
     app_env:str = "development"
@@ -24,6 +31,17 @@ class Settings(BaseSettings):
         # ignore unknown vars in .env by using extra = "ignore"
         extra="ignore"
     )
+
+    @property
+    def database_url(self) -> str:
+        """ Async used by sqlalchemy engine"""
+        return f"postgresql+asynccpg://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}:{self.db_name}"
+    
+    @property
+    def database_url_sync(self) -> str:
+        """ SYNC used by alembic only """
+        return f"postgresql://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}:{self.db_name}"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
