@@ -1,0 +1,16 @@
+services:
+  db:
+    image: pgvector/pgvector:pg14
+    container_name: npi_postgres_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: npi_user
+      POSTGRES_PASSWORD: npi_password
+      POSTGRES_DB: npi_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  pgdata:

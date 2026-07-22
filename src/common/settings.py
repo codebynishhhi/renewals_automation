@@ -35,12 +35,12 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         """ Async used by sqlalchemy engine"""
-        return f"postgresql+asynccpg://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}:{self.db_name}"
+        return f"postgresql+asyncpg://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
     
     @property
     def database_url_sync(self) -> str:
         """ SYNC used by alembic only """
-        return f"postgresql://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}:{self.db_name}"
+        return f"postgresql://{self.db_username}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
 
 @lru_cache(maxsize=1)
