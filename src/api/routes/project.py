@@ -10,6 +10,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/projects", tags=["Projects"])
 
+# Always place your static (literal text) routes completely ABOVE your dynamic (variable parameter) routes.
+
 @router.post("", response_model=ProjectResponse, status_code=status.HTTP_201_CREATED)
 async def create_project(
     payload:ProjectCreate,

@@ -20,6 +20,13 @@ class Settings(BaseSettings):
     db_username :str = "npi_user"
     db_password :str = "npi_password"
 
+    # minio
+    minio_endpoint : str = "localhost:9000"
+    minio_access_key : str = "minioadmin"
+    minio_secret_key : str = "minioadmin"
+    minio_bucket : str = "npi_artifacts"
+    minio_secure : bool = False
+
     # app
     log_level:str = "INFO"
     app_env:str = "development"
@@ -32,6 +39,7 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+    # Database connection and alembic 
     @property
     def database_url(self) -> str:
         """ Async used by sqlalchemy engine"""
