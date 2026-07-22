@@ -16,7 +16,7 @@ async def create_project(db : AsyncSession, name:str, created_by : str) -> Proje
 
 async def get_project(db:AsyncSession, project_id:uuid.UUID) -> Project | None:
     result = await db.execute(select(Project).where(Project.id == project_id))
-    return result.scalar_one_or_none
+    return result.scalar_one_or_none()
 
 async def get_all_projects(db:AsyncSession,limit:int = 20, offset:int = 20) -> list[Project] | None:
     result = await db.execute(select(Project).order_by(Project.created_at.desc()).limit(limit).offset(offset))

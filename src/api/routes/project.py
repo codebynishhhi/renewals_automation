@@ -20,6 +20,11 @@ async def create_project(
     )
     return project
 
+@router.get("/all_projects", response_model=list[ProjectResponse])
+async def get_all_projects(limit : int = 20, offset : int = 0, db: AsyncSession = Depends(get_db)):
+    projects = await project_service.get_all_projects(db, limit=limit, offset=offset)
+    return projects
+
 @router.get("/{project_id}", response_model=ProjectResponse)
 async def get_project(project_id : uuid.UUID, db : AsyncSession = Depends(get_db)):
     project = await project_service.get_project(db,project_id=project_id)
@@ -27,8 +32,5 @@ async def get_project(project_id : uuid.UUID, db : AsyncSession = Depends(get_db
         raise HTTPException(status_code=404, detail="Project not found!")
     return project
 
-@router.get("/{all_projects}", response_model=list[ProjectResponse])
-async def get_all_projects(limit : int = 20, offset : int = 0, db: AsyncSession = Depends(get_db)):
-    projects = await project_service.get_all_projects(db, limit=limit, offset=offset)
-    return projects
+
     
