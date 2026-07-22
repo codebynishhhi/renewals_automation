@@ -27,3 +27,16 @@ class ProjectResponse(BaseModel):
     created_at : datetime
 
     model_config = {"from_attributes":True} 
+
+# ------------------------------ Artifact --------------------------------
+class ArtifactResponse(BaseModel):
+    id : uuid.UUID
+    project_id : uuid.UUID
+    name : str
+    file_type : str
+    storage_key : str | None
+    status : str
+    size_bytes : int | None
+    uploaded_at :datetime
+
+    model_config = {"from_attributes":True}
