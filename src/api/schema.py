@@ -58,3 +58,4 @@ class ExtractedRule(BaseModel):
 class ExtractRulesList(BaseModel):
     """ Wrapper so LLM returns a list of rules in one call. """
     rules : list[ExtractedRule]
+

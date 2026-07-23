@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-class RuleExtractionAgent(TypedDict, total = False):
+class RuleExtractionAgentState(TypedDict, total = False):
     # ----------- input ----------------
     workflow_run_id : str
     project_id : str
