@@ -48,6 +48,12 @@ async def get_artifact_by_hash(db :AsyncSession, project_id : uuid.UUID, content
     result = await db.execute(select(Artifact).where(Artifact.project_id == project_id, Artifact.content_hash == content_hash))
     return result.scalar_one_or_none()
 
+async def get_artifact(db: AsyncSession, artifact_id: uuid.UUID) -> Artifact | None:
+    result = await db.execute(
+        select(Artifact).where(Artifact.id == artifact_id)
+    )
+    return result.scalar_one_or_none()
+
 async def list_artifacts(db : AsyncSession, project_id : uuid.UUID) -> list[Artifact]:
     result = await db.execute(
         select(Artifact)
