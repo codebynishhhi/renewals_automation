@@ -3,8 +3,8 @@ from src.agents.doc_ingestion_agent.state import DocumentIngestionAgentState
 
 logger = logging.getLogger(__name__)
 
-CHUNK_SIZE = 800
-CHUNK_OVERLAP = 100
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
 
 def chunk_documents(state: DocumentIngestionAgentState) -> dict:
     """
