@@ -73,6 +73,7 @@ class BaseAgent(ABC):
         Run the agent graph
         thread_id = workflow_run_id so Langgraph checkpoints & langfuse also traces
         """
+        # for langfuse tracing
         callbacks = [self.langfuse_handler] if self.langfuse_handler else []
         config = {
             "configurable":{"thread_id":self.workflow_run_id},

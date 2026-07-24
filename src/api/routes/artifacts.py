@@ -1,6 +1,6 @@
 import uuid
 import logging
-from fastapi import APIRouter, Depends, status, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, status, File, UploadFile, HTTPException, BackgroundTasks
 from src.common.database import AsyncSessionLocal
 from src.common.database import get_db
 from src.api.schema import ArtifactResponse  # Adjust to match your schema file path
@@ -56,12 +56,14 @@ async def process_artifacts(project_id : uuid.UUID,background_tasks: BackgroundT
 
     # run agent in backgrond so api return response immediately
     async def run_agent():
-        agent = DocumentIngestionAgent(workflow_run_id=str(artifact_id))
+
+        # Instantiate your agent worker object structure
+        agent = DocumentIngestionAgent(workflow_run_id = str(artifact_id))
         await agent.run(
             {
                 "workflow_run_id" : str(artifact_id),
-                "project_id":project_id,
-                "artifact_id" : artifact_id,
+                "project_id": str(project_id),
+                "artifact_id" : str(artifact_id),
                 "storage_key" : artifact.storage_key
             }
         )
@@ -95,7 +97,7 @@ async def get_extraction_status(artifact_id: str, db: AsyncSession = Depends(get
 # ------------------------------- Rules ---------------------------------------
 
 @router.post("/{artifact_id}/extract", status_code=status.HTTP_202_ACCEPTED)
-async def extract_rules(project_id:str, artifact_id : str, db : AsyncSession = Depends(get_db)):
+async def extract_rules(project_id:str, background_tasks: BackgroundTasks, artifact_id : str, db : AsyncSession = Depends(get_db)):
     """ Trigger rule extraction agent. Artifact must be in processed state """
     # 1. Clean the incoming strings to remove accidental tabs (\t) or spaces
     clean_project_id = project_id.strip()
@@ -112,14 +114,30 @@ async def extract_rules(project_id:str, artifact_id : str, db : AsyncSession = D
     await db.commit()
 
     async def run_agent():
-        agent = RuleExtractionAgent(workflow_run_id=str(artifact_id))
+        try:
+            logger.info("Starting background RuleExtractionAgent pipeline for artifact: {}", clean_artifact_id)
+            agent = RuleExtractionAgent(workflow_run_id=str(artifact_id))
 
-        await agent.run({
-            "workflow_run" : clean_artifact_id,
-            "project_id": clean_project_id,
-            "artifact_id":str(artifact_id),
-            "storage_key" : artifact.storage_key
-        })
-    
-    asyncio.create_task(run_agent())
+            # run the ai graph
+            await agent.run({
+                "workflow_run" : clean_artifact_id,
+                "project_id": clean_project_id,
+                "artifact_id":str(artifact_id),
+                "storage_key" : artifact.storage_key
+            })
+            logger.info("RuleExtractionAgent background task finished successfully!")
+        except Exception as e:
+            logger.warning("Background extraction agent failed!")
+            logger.error("Error message:{str(e)}")
+
+            # reset database row status to failed using a fresh connection
+            async with AsyncSessionLocal() as db:
+                err_artifact = await crud.get_artifact(db, clean_artifact_id)
+                if err_artifact:
+                    err_artifact.status = "failed"
+                    await db.commit()
+                    logger.warning("Artifact status reset to 'failed' due to background crash.")
+
+    # 3. Queue the task safely using FastAPI's official manager
+    background_tasks.add_task(run_agent)
     return {"status":"extracting", "artifact_id":str(artifact_id)}
