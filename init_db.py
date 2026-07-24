@@ -1,19 +1,20 @@
 import asyncio
 from sqlalchemy import text
-from src.common.database import engine, Base
-from src.api.models import Project, Artifact, DocumentChunks, Rules 
+from src.common.database import Base, engine
+from src.api.models import Project, Artifact, DocumentChunks, Rules
 
-async def create_tables():
-    print("Connecting to PostgreSQL engine...")
-    async with engine.begin() as conn:
+async def init_db():
+    print("Connecting to database...")
+    async with engine.begin() as connection:
+        # 1. Enable the vector extension explicitly inside npi_db
         print("Enabling pgvector extension...")
-        # This registers the vector type natively in the database session loop
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
+        await connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector;"))
         
-        print("Creating all schema tables...")
-        await conn.run_sync(Base.metadata.create_all)
+        # 2. Re-run the table generator task
+        print("Generating database tables...")
+        await connection.run_sync(Base.metadata.create_all)
         
-    print("Tables created successfully inside npi_db!")
+    print("\n🎉 ALL TABLES CREATED PERFECTLY INSIDE NPI_DB! 🎉\n")
 
 if __name__ == "__main__":
-    asyncio.run(create_tables())
+    asyncio.run(init_db())

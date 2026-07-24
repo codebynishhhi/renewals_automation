@@ -48,7 +48,7 @@ class ExtractedRule(BaseModel):
     """
     product_name : str = Field(description="Product this rule applies to")
     feature_name : str = Field(description="Feature or category, e.g - Storage, Memory")
-    rule_name : str = Field(description="Short description of the rule name")
+    name : str = Field(description="Short description of the rule name")
     rule_type : str = Field(description="One of : configuration, validation , eligiblity")
     condition : str = Field(description="The If part - what triggers this rule")
     if_true : str = Field(description="What happens when condition is true")
